@@ -5,26 +5,24 @@ from ml_engine import run_pipeline
 
 app = Flask(__name__)
 
-data_path = os.path.join(os.path.dirname(__file__), "data.csv")
+dashboard_data = None
 
-print("Loading data and training models...")
-dashboard_data = run_pipeline(data_path)
-print("Done! Starting server...")
-
+def load_data_once():
+    global dashboard_data
+    if dashboard_data is None:
+        data_path = os.path.join(os.getcwd(), "data.csv")
+        dashboard_data = run_pipeline(data_path)
 
 @app.route("/")
 def index():
+    load_data_once()
     return render_template(
         "index.html",
         data=json.dumps(dashboard_data),
         data_charts=dashboard_data["charts"]
     )
 
-
 @app.route("/api/data")
 def api_data():
+    load_data_once()
     return jsonify(dashboard_data)
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
