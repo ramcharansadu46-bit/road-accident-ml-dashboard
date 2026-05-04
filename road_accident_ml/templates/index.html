@@ -1,433 +1,918 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>India Road Accident ML Dashboard — 2003–2025</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:      #0b0f1a;
-  --surface: #131929;
-  --card:    #1a2236;
-  --border:  #242f45;
-  --accent:  #e84545;
-  --accent2: #f5a623;
-  --accent3: #3fcf8e;
-  --blue:    #4a9eff;
-  --purple:  #b06dff;
-  --text:    #e8edf5;
-  --muted:   #7a8aaa;
-  --glow:    rgba(232,69,69,0.15);
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>India Road Accident ML Dashboard — 2003–2025</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f1a;
+      --surface: #131929;
+      --card: #1a2236;
+      --border: #242f45;
+      --accent: #e84545;
+      --accent2: #f5a623;
+      --accent3: #3fcf8e;
+      --blue: #4a9eff;
+      --purple: #b06dff;
+      --text: #e8edf5;
+      --muted: #7a8aaa;
+      --glow: rgba(232, 69, 69, 0.15);
+    }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(74,158,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(74,158,255,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none; z-index: 0;
-}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-.page-wrap {
-  position: relative; z-index: 1;
-  max-width: 1600px; margin: 0 auto;
-  padding: 0 24px 60px;
-}
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(74, 158, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74, 158, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-/* HEADER */
-header {
-  padding: 48px 0 36px;
-  display: flex; flex-direction: column; gap: 10px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 36px; position: relative;
-}
-header::after {
-  content: '';
-  position: absolute; bottom: -1px; left: 0;
-  width: 120px; height: 2px;
-  background: linear-gradient(90deg, var(--accent), transparent);
-}
-.header-badge {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(232,69,69,0.12); border: 1px solid rgba(232,69,69,0.3);
-  color: var(--accent); font-size: 11px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
-  padding: 5px 14px; border-radius: 2px; width: fit-content;
-}
-.header-badge span {
-  width: 6px; height: 6px; background: var(--accent);
-  border-radius: 50%; animation: pulse 1.5s infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
 
-h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(36px,5vw,72px);
-  letter-spacing: 2px; line-height: 1;
-  background: linear-gradient(135deg, #fff 40%, var(--muted));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-.header-sub { color: var(--muted); font-size: 14px; font-weight: 400; letter-spacing: 0.5px; }
+    /* HEADER */
+    header {
+      padding: 48px 0 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+      position: relative;
+    }
 
-/* KPI STRIP */
-.kpi-grid {
-  display: grid; grid-template-columns: repeat(5,1fr);
-  gap: 16px; margin-bottom: 32px;
-}
-.kpi-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 8px; padding: 22px 20px;
-  position: relative; overflow: hidden;
-  transition: transform 0.2s, border-color 0.2s;
-  animation: fadeUp 0.6s both;
-}
-.kpi-card:hover { transform: translateY(-3px); border-color: var(--accent); }
-.kpi-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: var(--kpi-color, var(--accent));
-}
-.kpi-card::after {
-  content: ''; position: absolute; bottom: -30px; right: -30px;
-  width: 90px; height: 90px; border-radius: 50%;
-  background: var(--kpi-color, var(--accent)); opacity: 0.04;
-}
-.kpi-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-.kpi-value { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:1px; color:var(--kpi-color,var(--accent)); line-height:1; }
-.kpi-sub { font-size:11px; color:var(--muted); margin-top:6px; }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
 
-/* SECTION LABEL */
-.section-label {
-  font-size:10px; letter-spacing:3px; text-transform:uppercase;
-  color:var(--accent); font-weight:700;
-  display:flex; align-items:center; gap:10px; margin-bottom:16px;
-}
-.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 69, 69, 0.12);
+      border: 1px solid rgba(232, 69, 69, 0.3);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 2px;
+      width: fit-content;
+    }
 
-/* GRIDS */
-.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
-.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:20px; }
-.span-2 { grid-column:span 2; }
-.span-3 { grid-column:span 3; }
+    .header-badge span {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
 
-/* CHART CARD */
-.chart-card {
-  background:var(--card); border:1px solid var(--border);
-  border-radius:12px; padding:24px;
-  animation:fadeUp 0.7s both; position:relative;
-}
-.chart-card:hover { border-color:rgba(74,158,255,0.3); }
-.chart-title { font-size:13px; font-weight:700; letter-spacing:0.5px; color:var(--text); margin-bottom:4px; }
-.chart-desc  { font-size:11px; color:var(--muted); margin-bottom:20px; }
-.chart-card img { width:100%; border-radius:6px; display:block; }
+    @keyframes pulse {
 
-/* PRED BADGE */
-.pred-badge {
-  display:inline-flex; align-items:center; gap:6px;
-  background:rgba(245,166,35,0.12); border:1px solid rgba(245,166,35,0.3);
-  color:var(--accent2); font-size:10px; font-weight:700;
-  letter-spacing:1.5px; text-transform:uppercase;
-  padding:3px 10px; border-radius:2px; float:right; margin-top:-2px;
-}
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
 
-/* MODEL STATS */
-.model-stats { display:flex; gap:16px; flex-wrap:wrap; margin-top:16px; padding-top:16px; border-top:1px solid var(--border); }
-.stat-pill { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:8px 14px; }
-.stat-pill .sl { font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
-.stat-pill .sv { font-family:'JetBrains Mono',monospace; font-size:15px; font-weight:600; color:var(--accent3); }
+      50% {
+        opacity: 0.4;
+        transform: scale(0.7)
+      }
+    }
 
-/* METRICS TABLE */
-.metrics-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
-.metric-card {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:10px; padding:20px;
-}
-.metric-card h3 { font-size:12px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:14px; }
-.metric-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid rgba(36,47,69,0.5); font-size:12px; }
-.metric-row:last-child { border-bottom:none; }
-.metric-row .ml { color:var(--muted); }
-.metric-row .mv { font-family:'JetBrains Mono',monospace; font-weight:600; }
-.good { color:var(--accent3); }
-.mid  { color:var(--accent2); }
-.bad  { color:var(--accent); }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 72px);
+      letter-spacing: 2px;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 40%, var(--muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-/* DATA TABLE */
-.data-table { width:100%; border-collapse:collapse; font-size:12px; }
-.data-table th {
-  background:var(--surface); color:var(--muted);
-  font-size:9px; letter-spacing:2px; text-transform:uppercase;
-  padding:10px 14px; text-align:left; border-bottom:1px solid var(--border);
-}
-.data-table td { padding:10px 14px; border-bottom:1px solid rgba(36,47,69,0.5); }
-.data-table tr:hover td { background:rgba(255,255,255,0.02); }
-.bar-bg { background:var(--border); border-radius:2px; height:6px; width:100%; min-width:60px; }
-.bar-fill { background:var(--accent); border-radius:2px; height:6px; transition:width 0.6s; }
+    .header-sub {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.5px;
+    }
 
-/* PREDICTION TABLE */
-.pred-table-wrap { overflow-x:auto; }
-.pred-table { width:100%; border-collapse:collapse; font-size:12px; }
-.pred-table th {
-  background:var(--surface); color:var(--muted);
-  font-size:9px; letter-spacing:2px; text-transform:uppercase;
-  padding:10px 14px; border-bottom:1px solid var(--border); white-space:nowrap;
-}
-.pred-table td { padding:10px 14px; border-bottom:1px solid rgba(36,47,69,0.5); }
-.pred-table .yr { font-family:'JetBrains Mono',monospace; color:var(--accent2); font-weight:600; }
-.pred-table .val { font-family:'JetBrains Mono',monospace; }
-.pred-table tr:hover td { background:rgba(255,255,255,0.02); }
+    /* KPI STRIP */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
 
-/* INSIGHTS */
-.insights-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:20px; }
-.insight-card {
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:10px; padding:20px;
-}
-.insight-card .ic-icon { font-size:24px; margin-bottom:10px; }
-.insight-card .ic-title { font-size:12px; font-weight:700; letter-spacing:0.5px; margin-bottom:8px; }
-.insight-card .ic-text  { font-size:11px; color:var(--muted); line-height:1.6; }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 22px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+      animation: fadeUp 0.6s both;
+    }
 
-/* FOOTER */
-footer {
-  border-top:1px solid var(--border); padding:28px 0;
-  text-align:center; color:var(--muted); font-size:11px;
-  letter-spacing:0.5px;
-}
-footer strong { color:var(--text); }
+    .kpi-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+    }
 
-/* ANIMATIONS */
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(20px); }
-  to   { opacity:1; transform:translateY(0); }
-}
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--kpi-color, var(--accent));
+    }
 
-/* RESPONSIVE */
-@media(max-width:1100px) {
-  .grid-2,.grid-3,.metrics-grid,.insights-grid { grid-template-columns:1fr; }
-  .span-2,.span-3 { grid-column:span 1; }
-  .kpi-grid { grid-template-columns:repeat(3,1fr); }
-}
-@media(max-width:600px) {
-  .kpi-grid { grid-template-columns:1fr 1fr; }
-}
-</style>
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      bottom: -30px;
+      right: -30px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: var(--kpi-color, var(--accent));
+      opacity: 0.04;
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .kpi-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 38px;
+      letter-spacing: 1px;
+      color: var(--kpi-color, var(--accent));
+      line-height: 1;
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* GRIDS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    .span-3 {
+      grid-column: span 3;
+    }
+
+    /* CHART CARD */
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      animation: fadeUp 0.7s both;
+      position: relative;
+    }
+
+    .chart-card:hover {
+      border-color: rgba(74, 158, 255, 0.3);
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .chart-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .chart-card img {
+      width: 100%;
+      border-radius: 6px;
+      display: block;
+    }
+
+    /* PRED BADGE */
+    .pred-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 166, 35, 0.12);
+      border: 1px solid rgba(245, 166, 35, 0.3);
+      color: var(--accent2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 2px;
+      float: right;
+      margin-top: -2px;
+    }
+
+    /* MODEL STATS */
+    .model-stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 14px;
+    }
+
+    .stat-pill .sl {
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .stat-pill .sv {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent3);
+    }
+
+    /* METRICS TABLE */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .metric-card h3 {
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(36, 47, 69, 0.5);
+      font-size: 12px;
+    }
+
+    .metric-row:last-child {
+      border-bottom: none;
+    }
+
+    .metric-row .ml {
+      color: var(--muted);
+    }
+
+    .metric-row .mv {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+    }
+
+    .good {
+      color: var(--accent3);
+    }
+
+    .mid {
+      color: var(--accent2);
+    }
+
+    .bad {
+      color: var(--accent);
+    }
+
+    /* DATA TABLE */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .data-table th {
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(36, 47, 69, 0.5);
+    }
+
+    .data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .bar-bg {
+      background: var(--border);
+      border-radius: 2px;
+      height: 6px;
+      width: 100%;
+      min-width: 60px;
+    }
+
+    .bar-fill {
+      background: var(--accent);
+      border-radius: 2px;
+      height: 6px;
+      transition: width 0.6s;
+    }
+
+    /* PREDICTION TABLE */
+    .pred-table-wrap {
+      overflow-x: auto;
+    }
+
+    .pred-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .pred-table th {
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .pred-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(36, 47, 69, 0.5);
+    }
+
+    .pred-table .yr {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent2);
+      font-weight: 600;
+    }
+
+    .pred-table .val {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .pred-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* INSIGHTS */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .insight-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .insight-card .ic-icon {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .insight-card .ic-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .insight-card .ic-text {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+
+    /* STAT TESTS */
+    .stat-tests-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-test-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .stc-header {
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .stc-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stc-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .stc-reject {
+      background: rgba(232, 69, 69, 0.15);
+      border: 1px solid rgba(232, 69, 69, 0.35);
+      color: var(--accent);
+    }
+
+    .stc-fail {
+      background: rgba(74, 158, 255, 0.12);
+      border: 1px solid rgba(74, 158, 255, 0.3);
+      color: var(--blue);
+    }
+
+    .stc-body {
+      padding: 16px 18px;
+    }
+
+    .stc-hyp {
+      margin-bottom: 12px;
+    }
+
+    .stc-hyp-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 11px;
+    }
+
+    .stc-hyp-label {
+      color: var(--accent2);
+      font-weight: 700;
+      flex-shrink: 0;
+      width: 24px;
+    }
+
+    .stc-hyp-text {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .stc-values {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .stc-val {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 6px 12px;
+    }
+
+    .stc-val .sv-l {
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .stc-val .sv-v {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--accent3);
+    }
+
+    .stc-conclusion {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.65;
+      border-left: 2px solid var(--border);
+      padding-left: 10px;
+    }
+
+    .stc-conclusion strong {
+      color: var(--text);
+    }
+
+    @media(max-width:900px) {
+      .stat-tests-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    footer strong {
+      color: var(--text);
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* RESPONSIVE */
+    @media(max-width:1100px) {
+
+      .grid-2,
+      .grid-3,
+      .metrics-grid,
+      .insights-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .span-2,
+      .span-3 {
+        grid-column: span 1;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media(max-width:600px) {
+      .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="page-wrap">
+  <div class="page-wrap">
 
-  <!-- ── HEADER ── -->
-  <header>
-    <div class="header-badge"><span></span> Machine Learning — Python + scikit-learn</div>
-    <h1>India Road Accident Analysis</h1>
-    <p class="header-sub">District-Wise 2003–2015 · Linear, Polynomial & Random Forest Regression · Predictions 2016–2025</p>
-  </header>
+    <!-- ── HEADER ── -->
+    <header>
+      <div class="header-badge"><span></span> Machine Learning — Python + scikit-learn</div>
+      <h1>India Road Accident Analysis</h1>
+      <p class="header-sub">District-Wise 2003–2015 · Linear, Polynomial & Random Forest Regression · Predictions
+        2016–2025</p>
+    </header>
 
-  <!-- ── KPI STRIP ── -->
-  <div class="kpi-grid" id="kpiGrid"></div>
+    <!-- ── KPI STRIP ── -->
+    <div class="kpi-grid" id="kpiGrid"></div>
 
-  <!-- ── SECTION 1: ML TRAINING ── -->
-  <div class="section-label">🤖 ML Training — Model Fit on Historical Data</div>
+    <!-- ── SECTION 1: ML TRAINING ── -->
+    <div class="section-label">🤖 ML Training — Model Fit on Historical Data</div>
 
-  <div class="grid-2" style="margin-bottom:20px;">
-    <div class="chart-card span-2">
-      <div class="chart-title">Training — All Models vs Actual (2003–2015)</div>
-      <div class="chart-desc">Linear Regression, Polynomial (deg-3) and Random Forest trained on district-aggregated national data. Generated via scikit-learn + matplotlib.</div>
-      <img src="{{ data_charts.training }}" alt="Training chart">
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="chart-card span-2">
+        <div class="chart-title">Training — All Models vs Actual (2003–2015)</div>
+        <div class="chart-desc">Linear Regression, Polynomial (deg-3) and Random Forest trained on district-aggregated
+          national data. Generated via scikit-learn + matplotlib.</div>
+        <img src="{{ data_charts.training }}" alt="Training chart">
+      </div>
     </div>
-  </div>
 
-  <!-- ── MODEL METRICS ── -->
-  <div class="section-label">📊 Model Evaluation Metrics</div>
-  <div class="metrics-grid" id="metricsGrid"></div>
+    <!-- ── MODEL METRICS ── -->
+    <div class="section-label">📊 Model Evaluation Metrics</div>
+    <div class="metrics-grid" id="metricsGrid"></div>
 
-  <!-- ── SECTION 2: TRAIN / TEST SPLIT ── -->
-  <div class="section-label">🔬 Train / Test Split Visualisation</div>
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">Train vs Test — Predicted vs Actual</div>
-    <div class="chart-desc">Last 3 years (2013–2015) held out as test set. Blue dots = training points, red = test actual, coloured diamonds = test predicted.</div>
-    <img src="{{ data_charts.train_test }}" alt="Train-test split chart">
-  </div>
-
-  <!-- ── SECTION 3: PREDICTIONS ── -->
-  <div class="section-label">🔮 Future Predictions 2016–2025</div>
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">
-      Road Accident Predictions 2016–2025
-      <span class="pred-badge">🔮 PREDICTED</span>
+    <!-- ── SECTION 2: TRAIN / TEST SPLIT ── -->
+    <div class="section-label">🔬 Train / Test Split Visualisation</div>
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">Train vs Test — Predicted vs Actual</div>
+      <div class="chart-desc">Last 3 years (2013–2015) held out as test set. Blue dots = training points, red = test
+        actual, coloured diamonds = test predicted.</div>
+      <img src="{{ data_charts.train_test }}" alt="Train-test split chart">
     </div>
-    <div class="chart-desc">Dashed region = future. All three models extrapolated beyond 2015. Best model selected by test-set R².</div>
-    <img src="{{ data_charts.predictions }}" alt="Predictions chart">
-    <div class="model-stats" id="bestModelStats"></div>
-  </div>
 
-  <!-- Prediction Table -->
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">Prediction Table — 2016 to 2025</div>
-    <div class="chart-desc">Accident count forecast per model per year.</div>
-    <div class="pred-table-wrap">
-      <table class="pred-table" id="predTable"></table>
+    <!-- ── SECTION 3: PREDICTIONS ── -->
+    <div class="section-label">🔮 Future Predictions 2016–2025</div>
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">
+        Road Accident Predictions 2016–2025
+        <span class="pred-badge">🔮 PREDICTED</span>
+      </div>
+      <div class="chart-desc">Dashed region = future. All three models extrapolated beyond 2015. Best model selected by
+        test-set R².</div>
+      <img src="{{ data_charts.predictions }}" alt="Predictions chart">
+      <div class="model-stats" id="bestModelStats"></div>
     </div>
-  </div>
 
-  <!-- ── SECTION 4: MODEL COMPARISON ── -->
-  <div class="section-label">⚖️ Model Performance Comparison</div>
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">R² / RMSE / MAE Bar Comparison</div>
-    <div class="chart-desc">All three models compared across three evaluation metrics on the test set.</div>
-    <img src="{{ data_charts.comparison }}" alt="Model comparison">
-  </div>
-
-  <!-- ── SECTION 5: NATIONAL TRENDS ── -->
-  <div class="section-label">📈 National Trend Analysis</div>
-  <div class="grid-2" style="margin-bottom:20px;">
-    <div class="chart-card">
-      <div class="chart-title">Year-over-Year Change (%)</div>
-      <div class="chart-desc">Annual percentage change in national road accidents 2004–2015.</div>
-      <img src="{{ data_charts.yoy }}" alt="YOY chart">
+    <!-- Prediction Table -->
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">Prediction Table — 2016 to 2025</div>
+      <div class="chart-desc">Accident count forecast per model per year.</div>
+      <div class="pred-table-wrap">
+        <table class="pred-table" id="predTable"></table>
+      </div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">Top 10 States — Total Accidents (2003–2015)</div>
-      <div class="chart-desc">Cumulative 13-year accident totals per state.</div>
-      <img src="{{ data_charts.top_states }}" alt="Top states">
+
+    <!-- ── SECTION 4: MODEL COMPARISON ── -->
+    <div class="section-label">⚖️ Model Performance Comparison</div>
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">R² / RMSE / MAE Bar Comparison</div>
+      <div class="chart-desc">All three models compared across three evaluation metrics on the test set.</div>
+      <img src="{{ data_charts.comparison }}" alt="Model comparison">
     </div>
-  </div>
 
-  <!-- ── SECTION 6: STATE TRENDS ── -->
-  <div class="section-label">🗺️ State-Wise Trends</div>
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">Top 5 States — Year-Wise Accident Trend (2003–2015)</div>
-    <div class="chart-desc">Individual trajectory of each high-risk state over 13 years.</div>
-    <img src="{{ data_charts.state_trends }}" alt="State trends">
-  </div>
-
-  <!-- ── SECTION 7: DISTRICT DEEP DIVE ── -->
-  <div class="section-label">📍 District Deep Dive</div>
-  <div class="grid-2" style="margin-bottom:20px;">
-    <div class="chart-card">
-      <div class="chart-title">Top 15 Districts by Total Accidents</div>
-      <div class="chart-desc">Cumulative 2003–2015 district-level accident hotspots.</div>
-      <img src="{{ data_charts.top_districts }}" alt="Top districts">
+    <!-- ── SECTION 5: NATIONAL TRENDS ── -->
+    <div class="section-label">📈 National Trend Analysis</div>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="chart-card">
+        <div class="chart-title">Year-over-Year Change (%)</div>
+        <div class="chart-desc">Annual percentage change in national road accidents 2004–2015.</div>
+        <img src="{{ data_charts.yoy }}" alt="YOY chart">
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Top 10 States — Total Accidents (2003–2015)</div>
+        <div class="chart-desc">Cumulative 13-year accident totals per state.</div>
+        <img src="{{ data_charts.top_states }}" alt="Top states">
+      </div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">State Share — 2015 Snapshot</div>
-      <div class="chart-desc">Proportion of 2015 accidents by state (top 8 + others).</div>
-      <img src="{{ data_charts.pie_2015 }}" alt="2015 pie">
+
+    <!-- ── SECTION 6: STATE TRENDS ── -->
+    <div class="section-label">🗺️ State-Wise Trends</div>
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">Top 5 States — Year-Wise Accident Trend (2003–2015)</div>
+      <div class="chart-desc">Individual trajectory of each high-risk state over 13 years.</div>
+      <img src="{{ data_charts.state_trends }}" alt="State trends">
     </div>
-  </div>
 
-  <!-- ── SECTION 8: HEATMAP ── -->
-  <div class="section-label">🔥 Correlation Analysis</div>
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">Year-to-Year Correlation Heatmap</div>
-    <div class="chart-desc">Pearson correlation of district accident counts across years. High values → consistent accident hotspots year after year.</div>
-    <img src="{{ data_charts.heatmap }}" alt="Heatmap">
-  </div>
+    <!-- ── SECTION 7: DISTRICT DEEP DIVE ── -->
+    <div class="section-label">📍 District Deep Dive</div>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="chart-card">
+        <div class="chart-title">Top 15 Districts by Total Accidents</div>
+        <div class="chart-desc">Cumulative 2003–2015 district-level accident hotspots.</div>
+        <img src="{{ data_charts.top_districts }}" alt="Top districts">
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">State Share — 2015 Snapshot</div>
+        <div class="chart-desc">Proportion of 2015 accidents by state (top 8 + others).</div>
+        <img src="{{ data_charts.pie_2015 }}" alt="2015 pie">
+      </div>
+    </div>
 
-  <!-- ── SECTION 9: STATE RANKINGS ── -->
-  <div class="section-label">🏆 State Rankings — 2015</div>
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div class="chart-title">State Performance Table — Accidents in 2015</div>
-    <div class="chart-desc">Ranked by accident count. Bar indicates relative scale.</div>
-    <table class="data-table" id="rankTable"></table>
-  </div>
+    <!-- ── SECTION 8: HEATMAP ── -->
+    <div class="section-label">🔥 Correlation Analysis</div>
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">Year-to-Year Correlation Heatmap</div>
+      <div class="chart-desc">Pearson correlation of district accident counts across years. High values → consistent
+        accident hotspots year after year.</div>
+      <img src="{{ data_charts.heatmap }}" alt="Heatmap">
+    </div>
 
-  <!-- ── SECTION 10: INSIGHTS ── -->
-  <div class="section-label">💡 Key Insights</div>
-  <div class="insights-grid" id="insightsGrid"></div>
 
-  <footer>
-    <strong>Road Accident ML Dashboard</strong> &nbsp;·&nbsp;
-    Python &nbsp;·&nbsp; scikit-learn &nbsp;·&nbsp; pandas &nbsp;·&nbsp;
-    numpy &nbsp;·&nbsp; matplotlib &nbsp;·&nbsp; seaborn &nbsp;·&nbsp; Flask
-    &nbsp;·&nbsp; Data: India District-wise 2003–2015
-  </footer>
+    <!-- ── OUTLIER ANALYSIS ── -->
+    <div class="section-label">📦 Outlier Analysis — Box Plot</div>
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">District-Level Outlier Detection using IQR Method</div>
+      <div class="chart-desc">Left: Distribution of district accident totals per state (box plot). Right: IQR outlier
+        detection — red dots are districts with accidents beyond Q3 + 1.5×IQR. Generated via matplotlib.</div>
+      <img src="{{ data_charts.outlier_boxplot }}" alt="Outlier boxplot">
+    </div>
 
-</div><!-- /page-wrap -->
+    <!-- ── SECTION 9: STATE RANKINGS ── -->
+    <div class="section-label">🏆 State Rankings — 2015</div>
+    <div class="chart-card" style="margin-bottom:20px;">
+      <div class="chart-title">State Performance Table — Accidents in 2015</div>
+      <div class="chart-desc">Ranked by accident count. Bar indicates relative scale.</div>
+      <table class="data-table" id="rankTable"></table>
+    </div>
 
-<script>
-// ─── Inject data from Flask ───────────────────────────────────────────────
-const D = {{ data|safe }};
+    <!-- ── SECTION 10: INSIGHTS ── -->
+    <div class="section-label">💡 Key Insights</div>
+    <div class="insights-grid" id="insightsGrid"></div>
 
-// ─── KPI Grid ─────────────────────────────────────────────────────────────
-const kpis = [
-  { label:'Total Accidents (2003–15)', value:(D.kpis.total_accidents/1e6).toFixed(2)+'M', sub:'All districts combined',      color:'#e84545' },
-  { label:'Peak Year',                 value: D.kpis.peak_year,                            sub:(D.kpis.peak_val/1e3).toFixed(0)+'K accidents', color:'#f5a623' },
-  { label:'States / UTs',              value: D.kpis.states_count,                         sub:'Districts: '+D.kpis.districts_count, color:'#4a9eff' },
-  { label:'Avg Annual (National)',     value:(D.kpis.avg_annual/1e3).toFixed(0)+'K',       sub:'Per year 2003–2015',           color:'#3fcf8e' },
-  { label:'Data Span',                 value:'13 YRS',                                     sub:'2003 → 2015 + predictions',    color:'#b06dff' },
-];
-const kpiGrid = document.getElementById('kpiGrid');
-kpis.forEach((k,i) => {
-  kpiGrid.innerHTML += `<div class="kpi-card" style="--kpi-color:${k.color};animation-delay:${i*0.07}s">
+
+    <!-- ── SECTION: STATISTICAL TESTS ── -->
+    <div class="section-label">🧪 Statistical Testing</div>
+    <div class="stat-tests-grid" id="statTestsGrid"></div>
+
+    <footer>
+      <strong>Road Accident ML Dashboard</strong> &nbsp;·&nbsp;
+      Python &nbsp;·&nbsp; scikit-learn &nbsp;·&nbsp; pandas &nbsp;·&nbsp;
+      numpy &nbsp;·&nbsp; matplotlib &nbsp;·&nbsp; seaborn &nbsp;·&nbsp; Flask
+      &nbsp;·&nbsp; Data: India District-wise 2003–2015
+    </footer>
+
+  </div><!-- /page-wrap -->
+
+  <!-- ─── Inject data from Flask ─────────────────────────────────────────────── -->
+  <script id="dashboard-data" type="application/json">
+    {{ data|safe }}
+  </script>
+  <script>
+    const D = JSON.parse(document.getElementById('dashboard-data').textContent);
+
+    // ─── KPI Grid ─────────────────────────────────────────────────────────────
+    const kpis = [
+      { label: 'Total Accidents (2003–15)', value: (D.kpis.total_accidents / 1e6).toFixed(2) + 'M', sub: 'All districts combined', color: '#e84545' },
+      { label: 'Peak Year', value: D.kpis.peak_year, sub: (D.kpis.peak_val / 1e3).toFixed(0) + 'K accidents', color: '#f5a623' },
+      { label: 'States / UTs', value: D.kpis.states_count, sub: 'Districts: ' + D.kpis.districts_count, color: '#4a9eff' },
+      { label: 'Avg Annual (National)', value: (D.kpis.avg_annual / 1e3).toFixed(0) + 'K', sub: 'Per year 2003–2015', color: '#3fcf8e' },
+      { label: 'Data Span', value: '13 YRS', sub: '2003 → 2015 + predictions', color: '#b06dff' },
+    ];
+    const kpiGrid = document.getElementById('kpiGrid');
+    kpis.forEach((k, i) => {
+      kpiGrid.innerHTML += `<div class="kpi-card" style="--kpi-color:${k.color};animation-delay:${i * 0.07}s">
     <div class="kpi-label">${k.label}</div>
     <div class="kpi-value">${k.value}</div>
     <div class="kpi-sub">${k.sub}</div>
   </div>`;
-});
+    });
 
-// ─── Metrics Grid ─────────────────────────────────────────────────────────
-function scoreColor(v) { return v >= 0.7 ? 'good' : v >= 0.4 ? 'mid' : 'bad'; }
-const mNames = { linear:'Linear Regression', polynomial:'Polynomial (deg-3)', random_forest:'Random Forest' };
-const mColors= { linear:'#4a9eff', polynomial:'#f5a623', random_forest:'#3fcf8e' };
-const mg = document.getElementById('metricsGrid');
-Object.keys(D.metrics).forEach(key => {
-  const m = D.metrics[key];
-  mg.innerHTML += `
+    // ─── Metrics Grid ─────────────────────────────────────────────────────────
+    function scoreColor(v) { return v >= 0.7 ? 'good' : v >= 0.4 ? 'mid' : 'bad'; }
+    const mNames = { linear: 'Linear Regression', polynomial: 'Polynomial (deg-3)', random_forest: 'Random Forest' };
+    const mColors = { linear: '#4a9eff', polynomial: '#f5a623', random_forest: '#3fcf8e' };
+    const mg = document.getElementById('metricsGrid');
+    Object.keys(D.metrics).forEach(key => {
+      const m = D.metrics[key];
+      mg.innerHTML += `
   <div class="metric-card">
     <h3 style="color:${mColors[key]}">${mNames[key]}</h3>
     <div class="metric-row"><span class="ml">R² (Full Data)</span><span class="mv ${scoreColor(m.r2)}">${m.r2}</span></div>
     <div class="metric-row"><span class="ml">R² (Train)</span>    <span class="mv ${scoreColor(m.r2_train)}">${m.r2_train}</span></div>
     <div class="metric-row"><span class="ml">R² (Test)</span>     <span class="mv ${scoreColor(m.r2_test)}">${m.r2_test}</span></div>
-    <div class="metric-row"><span class="ml">RMSE</span>          <span class="mv">${(m.rmse/1e3).toFixed(1)}K</span></div>
-    <div class="metric-row"><span class="ml">MAE</span>           <span class="mv">${(m.mae/1e3).toFixed(1)}K</span></div>
+    <div class="metric-row"><span class="ml">RMSE</span>          <span class="mv">${(m.rmse / 1e3).toFixed(1)}K</span></div>
+    <div class="metric-row"><span class="ml">MAE</span>           <span class="mv">${(m.mae / 1e3).toFixed(1)}K</span></div>
   </div>`;
-});
+    });
 
-// ─── Best Model Stats bar ─────────────────────────────────────────────────
-const best = Object.entries(D.metrics).sort((a,b)=>b[1].r2_test - a[1].r2_test)[0];
-document.getElementById('bestModelStats').innerHTML = `
+    // ─── Best Model Stats bar ─────────────────────────────────────────────────
+    const best = Object.entries(D.metrics).sort((a, b) => b[1].r2_test - a[1].r2_test)[0];
+    document.getElementById('bestModelStats').innerHTML = `
   <div class="stat-pill"><div class="sl">Best Model (test R²)</div><div class="sv">${mNames[best[0]]}</div></div>
   <div class="stat-pill"><div class="sl">R² Test</div>   <div class="sv">${best[1].r2_test}</div></div>
   <div class="stat-pill"><div class="sl">R² Train</div>  <div class="sv">${best[1].r2_train}</div></div>
-  <div class="stat-pill"><div class="sl">RMSE</div>       <div class="sv">${(best[1].rmse/1e3).toFixed(1)}K</div></div>
-  <div class="stat-pill"><div class="sl">MAE</div>        <div class="sv">${(best[1].mae/1e3).toFixed(1)}K</div></div>
+  <div class="stat-pill"><div class="sl">RMSE</div>       <div class="sv">${(best[1].rmse / 1e3).toFixed(1)}K</div></div>
+  <div class="stat-pill"><div class="sl">MAE</div>        <div class="sv">${(best[1].mae / 1e3).toFixed(1)}K</div></div>
 `;
 
-// ─── Prediction Table ─────────────────────────────────────────────────────
-const pt = document.getElementById('predTable');
-pt.innerHTML = `<thead><tr>
+    // ─── Prediction Table ─────────────────────────────────────────────────────
+    const pt = document.getElementById('predTable');
+    pt.innerHTML = `<thead><tr>
   <th>Year</th>
   <th style="color:#4a9eff">Linear Regression</th>
   <th style="color:#f5a623">Polynomial (deg-3)</th>
   <th style="color:#3fcf8e">Random Forest</th>
 </tr></thead><tbody>`;
-D.future_table.forEach(r => {
-  pt.innerHTML += `<tr>
+    D.future_table.forEach(r => {
+      pt.innerHTML += `<tr>
     <td class="yr">${r.year}</td>
     <td class="val" style="color:#4a9eff">${r.linear.toLocaleString()}</td>
     <td class="val" style="color:#f5a623">${r.polynomial.toLocaleString()}</td>
     <td class="val" style="color:#3fcf8e">${r.random_forest.toLocaleString()}</td>
   </tr>`;
-});
-pt.innerHTML += '</tbody>';
+    });
+    pt.innerHTML += '</tbody>';
 
-// ─── State Ranking Table ──────────────────────────────────────────────────
-const rt = document.getElementById('rankTable');
-rt.innerHTML = `<thead><tr>
+    // ─── State Ranking Table ──────────────────────────────────────────────────
+    const rt = document.getElementById('rankTable');
+    rt.innerHTML = `<thead><tr>
   <th>Rank</th><th>State</th><th>Accidents (2015)</th><th>Relative Scale</th>
 </tr></thead><tbody>`;
-D.state_ranking.slice(0,15).forEach(r => {
-  rt.innerHTML += `<tr>
+    D.state_ranking.slice(0, 15).forEach(r => {
+      rt.innerHTML += `<tr>
     <td style="color:var(--muted)">${r.rank}</td>
     <td>${r.state}</td>
     <td style="font-family:'JetBrains Mono',monospace;color:var(--accent2)">${r.accidents.toLocaleString()}</td>
@@ -435,40 +920,121 @@ D.state_ranking.slice(0,15).forEach(r => {
       <div class="bar-bg"><div class="bar-fill" style="width:${r.pct}%"></div></div>
     </td>
   </tr>`;
-});
-rt.innerHTML += '</tbody>';
+    });
+    rt.innerHTML += '</tbody>';
 
-// ─── Insights ─────────────────────────────────────────────────────────────
-const best2015 = D.state_ranking[0];
-const peak_yr  = D.kpis.peak_year;
-const lr_r2    = D.metrics.linear.r2_test;
-const poly_r2  = D.metrics.polynomial.r2_test;
-const rf_r2    = D.metrics.random_forest.r2_test;
-const allR2    = {linear:lr_r2, polynomial:poly_r2, random_forest:rf_r2};
-const topModel = Object.entries(allR2).sort((a,b)=>b[1]-a[1])[0];
+    // ─── Insights ─────────────────────────────────────────────────────────────
+    const best2015 = D.state_ranking[0];
+    const peak_yr = D.kpis.peak_year;
+    const lr_r2 = D.metrics.linear.r2_test;
+    const poly_r2 = D.metrics.polynomial.r2_test;
+    const rf_r2 = D.metrics.random_forest.r2_test;
+    const allR2 = { linear: lr_r2, polynomial: poly_r2, random_forest: rf_r2 };
+    const topModel = Object.entries(allR2).sort((a, b) => b[1] - a[1])[0];
 
-const insights = [
-  { icon:'🔮', title:'Best ML Model', color:'#f5a623',
-    text:`${mNames[topModel[0]]} achieves the highest test-set R² of ${topModel[1].toFixed(3)}, making it the most reliable predictor for future accident counts.` },
-  { icon:'📈', title:'Peak Accident Year', color:'#e84545',
-    text:`National accidents peaked in ${peak_yr} with ${(D.kpis.peak_val/1e3).toFixed(0)}K incidents. Post-2010 showed a gradual decline suggesting policy impact.` },
-  { icon:'🗺️', title:'High-Risk State', color:'#4a9eff',
-    text:`${best2015.state} recorded the highest accidents in 2015 (${best2015.accidents.toLocaleString()}). Concentrated intervention here could significantly reduce national numbers.` },
-  { icon:'📊', title:'Linear vs Non-Linear', color:'#3fcf8e',
-    text:`Linear Regression (R²=${lr_r2.toFixed(3)}) underperforms vs Polynomial (R²=${poly_r2.toFixed(3)}), confirming a non-linear trend in national road accidents.` },
-  { icon:'🏘️', title:'District Coverage', color:'#b06dff',
-    text:`${D.kpis.districts_count} districts across ${D.kpis.states_count} states/UTs analysed. District-level data enables granular hotspot identification for targeted safety interventions.` },
-  { icon:'🚦', title:'Average Annual Toll', color:'#ff6b6b',
-    text:`India averaged ~${(D.kpis.avg_annual/1e6).toFixed(2)} million road accidents per year (2003–2015). With ${(D.kpis.total_accidents/1e6).toFixed(2)}M total, road safety remains a critical public health issue.` },
-];
-const ig = document.getElementById('insightsGrid');
-insights.forEach((ins,i) => {
-  ig.innerHTML += `<div class="insight-card" style="animation-delay:${i*0.1}s;border-left:3px solid ${ins.color}">
+    const insights = [
+      {
+        icon: '🔮', title: 'Best ML Model', color: '#f5a623',
+        text: `${mNames[topModel[0]]} achieves the highest test-set R² of ${topModel[1].toFixed(3)}, making it the most reliable predictor for future accident counts.`
+      },
+      {
+        icon: '📈', title: 'Peak Accident Year', color: '#e84545',
+        text: `National accidents peaked in ${peak_yr} with ${(D.kpis.peak_val / 1e3).toFixed(0)}K incidents. Post-2010 showed a gradual decline suggesting policy impact.`
+      },
+      {
+        icon: '🗺️', title: 'High-Risk State', color: '#4a9eff',
+        text: `${best2015.state} recorded the highest accidents in 2015 (${best2015.accidents.toLocaleString()}). Concentrated intervention here could significantly reduce national numbers.`
+      },
+      {
+        icon: '📊', title: 'Linear vs Non-Linear', color: '#3fcf8e',
+        text: `Linear Regression (R²=${lr_r2.toFixed(3)}) underperforms vs Polynomial (R²=${poly_r2.toFixed(3)}), confirming a non-linear trend in national road accidents.`
+      },
+      {
+        icon: '🏘️', title: 'District Coverage', color: '#b06dff',
+        text: `${D.kpis.districts_count} districts across ${D.kpis.states_count} states/UTs analysed. District-level data enables granular hotspot identification for targeted safety interventions.`
+      },
+      {
+        icon: '🚦', title: 'Average Annual Toll', color: '#ff6b6b',
+        text: `India averaged ~${(D.kpis.avg_annual / 1e6).toFixed(2)} million road accidents per year (2003–2015). With ${(D.kpis.total_accidents / 1e6).toFixed(2)}M total, road safety remains a critical public health issue.`
+      },
+    ];
+    const ig = document.getElementById('insightsGrid');
+    insights.forEach((ins, i) => {
+      ig.innerHTML += `<div class="insight-card" style="animation-delay:${i * 0.1}s;border-left:3px solid ${ins.color}">
     <div class="ic-icon">${ins.icon}</div>
     <div class="ic-title" style="color:${ins.color}">${ins.title}</div>
     <div class="ic-text">${ins.text}</div>
   </div>`;
-});
-</script>
+    });
+
+    // statistical tests section
+    const ST = D.stat_tests;
+
+    const testDefs = [
+      {
+        key: "shapiro",
+        vals: (t) => [
+          { l: "W Statistic", v: t.statistic },
+          { l: "p-value", v: t.p_value },
+          { l: "Alpha", v: t.alpha },
+        ]
+      },
+      {
+        key: "ttest",
+        vals: (t) => [
+          { l: "t Statistic", v: t.statistic },
+          { l: "p-value", v: t.p_value },
+          { l: "Sample Mean", v: Math.round(t.sample_mean).toLocaleString() },
+          { l: "Test Mean", v: t.test_mean.toLocaleString() },
+          { l: "Std Dev", v: Math.round(t.sample_std).toLocaleString() },
+        ]
+      },
+      {
+        key: "ztest",
+        vals: (t) => [
+          { l: "Z Statistic", v: t.statistic },
+          { l: "p-value", v: t.p_value },
+          { l: "Z Critical", v: t.z_critical },
+          { l: "Sample Mean", v: Math.round(t.sample_mean).toLocaleString() },
+        ]
+      },
+      {
+        key: "chi2",
+        vals: (t) => [
+          { l: "Chi² Stat", v: t.statistic.toLocaleString() },
+          { l: "p-value", v: t.p_value === 0 ? "< 0.000001" : t.p_value },
+          { l: "Expected Each", v: Math.round(t.expected_each).toLocaleString() },
+          { l: "North", v: t.observed.North.toLocaleString() },
+          { l: "South", v: t.observed.South.toLocaleString() },
+          { l: "East", v: t.observed.East.toLocaleString() },
+          { l: "West", v: t.observed.West.toLocaleString() },
+        ]
+      },
+    ];
+
+    const stGrid = document.getElementById('statTestsGrid');
+    testDefs.forEach(def => {
+      const t = ST[def.key];
+      const isReject = t.reject_h0;
+      const vals = def.vals(t);
+      stGrid.innerHTML += `
+  <div class="stat-test-card">
+    <div class="stc-header">
+      <div class="stc-name">${t.test}</div>
+      <div class="stc-badge ${isReject ? 'stc-reject' : 'stc-fail'}">${isReject ? 'REJECT H₀' : 'FAIL TO REJECT H₀'}</div>
+    </div>
+    <div class="stc-body">
+      <div class="stc-hyp">
+        <div class="stc-hyp-row"><span class="stc-hyp-label">H₀</span><span class="stc-hyp-text">${t.h0}</span></div>
+        <div class="stc-hyp-row"><span class="stc-hyp-label">H₁</span><span class="stc-hyp-text">${t.h1}</span></div>
+      </div>
+      <div class="stc-values">${vals.map(v => `<div class="stc-val"><div class="sv-l">${v.l}</div><div class="sv-v">${v.v}</div></div>`).join('')}</div>
+      <div class="stc-conclusion"><strong>Conclusion:</strong> ${t.conclusion}</div>
+    </div>
+  </div>`;
+    });
+
+  </script>
 </body>
+
 </html>

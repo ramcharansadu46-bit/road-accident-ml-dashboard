@@ -5,13 +5,14 @@ from ml_engine import run_pipeline
 
 app = Flask(__name__)
 
+data_path = "data.csv"
 dashboard_data = None
+
 
 def load_data_once():
     global dashboard_data
     if dashboard_data is None:
-        with open("dashboard.json") as f:
-            dashboard_data = json.load(f)
+        dashboard_data = run_pipeline(data_path)
 
 @app.route("/")
 def index():
@@ -26,3 +27,6 @@ def index():
 def api_data():
     data = run_pipeline(data_path)   # reload every time
     return jsonify(data)
+
+if __name__ == "__main__":
+    app.run(debug=True)

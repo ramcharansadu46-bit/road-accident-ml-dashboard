@@ -16,6 +16,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from sklearn.pipeline import make_pipeline
 
+from scipy.stats import shapiro, ttest_1samp, norm, chisquare
+
 
 # chart colors for dark background
 BG     = "#0b0f1a"
@@ -446,6 +448,189 @@ def chart_heatmap(df):
     return save_chart(fig, "chart_heatmap.png")
 
 
+
+
+
+def chart_outlier_boxplot(df):
+    set_dark_theme()
+    year_cols = [c for c in df.columns if c.isdigit()]
+    df["Total"] = df[year_cols].sum(axis=1)
+
+    # IQR outlier detection on district totals
+    Q1  = df["Total"].quantile(0.25)
+    Q3  = df["Total"].quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    outliers    = df[df["Total"] > upper].sort_values("Total", ascending=False)
+    non_outliers = df[df["Total"] <= upper]
+
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+    fig.patch.set_facecolor(BG)
+
+    # ── LEFT: boxplot of district totals by top 8 states ──────────────────
+    ax = axes[0]
+    ax.set_facecolor(CARD)
+
+    top8_states = df.groupby("State")["Total"].sum().sort_values(ascending=False).head(8).index
+    data_by_state = [df[df["State"] == s]["Total"].values / 1e3 for s in top8_states]
+    colors_bp = [RED, BLUE, ORANGE, GREEN, PURPLE, "#ff6b6b", "#ffd93d", "#6bcb77"]
+
+    bp = ax.boxplot(data_by_state, patch_artist=True, notch=False,
+                    medianprops={"color": WHITE, "linewidth": 2.2},
+                    whiskerprops={"color": GRAY, "linewidth": 1.2},
+                    capprops={"color": GRAY, "linewidth": 1.2},
+                    flierprops={"marker": "o", "markersize": 5,
+                                "markerfacecolor": RED, "markeredgecolor": RED, "alpha": 0.7})
+    for patch, col in zip(bp["boxes"], colors_bp):
+        patch.set_facecolor(col)
+        patch.set_alpha(0.65)
+
+    ax.set_xticks(range(1, len(top8_states) + 1))
+    ax.set_xticklabels([s[:13] for s in top8_states], rotation=20, ha="right", fontsize=8)
+    ax.set_title("District Accident Distribution — Top 8 States (Boxplot)", pad=12)
+    ax.set_ylabel("Total Accidents per District (Thousands)")
+    ax.grid(True, axis="y")
+
+    # ── RIGHT: horizontal scatter — normal vs outlier districts ──────────
+    ax2 = axes[1]
+    ax2.set_facecolor(CARD)
+
+    ax2.scatter(non_outliers["Total"] / 1e3,
+                range(len(non_outliers)),
+                color=BLUE, s=18, alpha=0.4, label="Normal districts", zorder=3)
+    ax2.scatter(outliers["Total"] / 1e3,
+                range(len(non_outliers), len(non_outliers) + len(outliers)),
+                color=RED, s=40, alpha=0.85, label=f"Outliers ({len(outliers)})", zorder=4)
+
+    ax2.axvline(upper / 1e3, color=ORANGE, linewidth=1.5, linestyle="--",
+                label=f"Upper fence = {upper/1e3:.1f}K")
+
+    # label top 5 outlier districts
+    for _, row in outliers.head(5).iterrows():
+        idx = list(df.index).index(row.name)
+        ax2.annotate(f"{row['District'][:14]}",
+                     xy=(row["Total"] / 1e3, non_outliers.shape[0] + list(outliers.index).index(row.name)),
+                     xytext=(8, 0), textcoords="offset points",
+                     fontsize=7.5, color=WHITE, va="center")
+
+    ax2.set_title(f"Outlier Detection — IQR Method  |  {len(outliers)} outlier districts found", pad=12)
+    ax2.set_xlabel("Total Accidents 2003–2015 (Thousands)")
+    ax2.set_ylabel("District Index")
+    ax2.legend(facecolor=CARD, edgecolor="#242f45", labelcolor=WHITE, fontsize=9)
+    ax2.grid(True, axis="x")
+
+    fig.suptitle(
+        f"Outlier Analysis  |  Q1={Q1/1e3:.1f}K  Q3={Q3/1e3:.1f}K  IQR={IQR/1e3:.1f}K  Fence={upper/1e3:.1f}K",
+        color=WHITE, fontsize=12, y=1.01
+    )
+    fig.tight_layout()
+    return save_chart(fig, "chart_outlier_boxplot.png")
+
+# ----- STATISTICAL TESTS -----
+
+def run_statistical_tests(df, years, accidents):
+    year_cols = [c for c in df.columns if c.isdigit()]
+
+    # 1. Shapiro-Wilk Normality Test
+    # Tests if yearly national accident totals follow a normal distribution
+    sw_stat, sw_p = shapiro(accidents)
+    shapiro_result = {
+        "test":        "Shapiro-Wilk Normality Test",
+        "h0":          "Yearly accident data follows a normal distribution",
+        "h1":          "Yearly accident data does NOT follow a normal distribution",
+        "statistic":   round(float(sw_stat), 4),
+        "p_value":     round(float(sw_p), 4),
+        "alpha":       0.05,
+        "reject_h0":   bool(sw_p < 0.05),
+        "result":      "Reject H0 - Data is NOT normal" if sw_p < 0.05 else "Fail to Reject H0 - Data is Normal",
+        "conclusion":  f"W = {sw_stat:.4f}, p = {sw_p:.4f}. At alpha=0.05, the yearly accident data {'does NOT follow' if sw_p < 0.05 else 'follows'} a normal distribution.",
+    }
+
+    # 2. One-Sample T-Test
+    # Tests if the mean yearly accidents is significantly different from 500,000
+    mu0 = 500000
+    sample_mean = float(np.mean(accidents))
+    sample_std  = float(np.std(accidents, ddof=1))
+    t_stat, t_p = ttest_1samp(accidents, mu0)
+    ttest_result = {
+        "test":        "One-Sample T-Test",
+        "h0":          f"Mean yearly accidents = {mu0:,}",
+        "h1":          f"Mean yearly accidents != {mu0:,}",
+        "test_mean":   mu0,
+        "sample_mean": round(sample_mean, 2),
+        "sample_std":  round(sample_std, 2),
+        "statistic":   round(float(t_stat), 4),
+        "p_value":     round(float(t_p), 4),
+        "alpha":       0.05,
+        "reject_h0":   bool(t_p < 0.05),
+        "result":      "Reject H0 - Mean is significantly different" if t_p < 0.05 else "Fail to Reject H0 - Mean is NOT significantly different",
+        "conclusion":  f"t = {t_stat:.4f}, p = {t_p:.4f}. Sample mean = {sample_mean:,.0f}. At alpha=0.05, the mean yearly accidents {'IS' if t_p < 0.05 else 'is NOT'} significantly different from {mu0:,}.",
+    }
+
+    # 3. Z-Test (One-Sample)
+    # Same as T-test but uses Z distribution — suitable when population std is known
+    # Here we use sample std as an approximation (n=13)
+    z_stat = (sample_mean - mu0) / (sample_std / np.sqrt(len(accidents)))
+    z_p    = float(2 * (1 - norm.cdf(abs(z_stat))))
+    z_critical = 1.96  # alpha = 0.05 two-tailed
+    ztest_result = {
+        "test":        "One-Sample Z-Test",
+        "h0":          f"Population mean yearly accidents = {mu0:,}",
+        "h1":          f"Population mean yearly accidents != {mu0:,}",
+        "test_mean":   mu0,
+        "sample_mean": round(sample_mean, 2),
+        "sample_std":  round(sample_std, 2),
+        "statistic":   round(z_stat, 4),
+        "p_value":     round(z_p, 4),
+        "z_critical":  z_critical,
+        "alpha":       0.05,
+        "reject_h0":   bool(abs(z_stat) > z_critical),
+        "result":      "Reject H0 - Significant difference from population mean" if abs(z_stat) > z_critical else "Fail to Reject H0 - No significant difference",
+        "conclusion":  f"Z = {z_stat:.4f}, p = {z_p:.4f}. |Z| = {abs(z_stat):.4f} {'>' if abs(z_stat) > z_critical else '<='} Z_critical = {z_critical}. The mean yearly accidents {'IS' if abs(z_stat) > z_critical else 'is NOT'} significantly different from {mu0:,}.",
+    }
+
+    # 4. Chi-Square Goodness of Fit Test
+    # Tests if accidents are uniformly distributed across North, South, East, West India
+    state_totals = df.groupby("State")[year_cols].sum().sum(axis=1)
+
+    north = ["Delhi", "Haryana", "Himachal Pradesh", "Jammu & Kashmir", "Punjab", "Rajasthan", "Uttar Pradesh", "Uttarakhand"]
+    south = ["Andhra Pradesh", "Karnataka", "Kerala", "Tamil Nadu", "Telangana"]
+    east  = ["Bihar", "Jharkhand", "Odisha", "West Bengal", "Assam"]
+    west  = ["Goa", "Gujarat", "Maharashtra", "Madhya Pradesh"]
+
+    region_totals = {
+        "North": float(sum(state_totals.get(s, 0) for s in north)),
+        "South": float(sum(state_totals.get(s, 0) for s in south)),
+        "East":  float(sum(state_totals.get(s, 0) for s in east)),
+        "West":  float(sum(state_totals.get(s, 0) for s in west)),
+    }
+    observed     = np.array(list(region_totals.values()))
+    expected_val = float(observed.sum() / 4)
+    expected     = np.full(4, expected_val)
+    chi2_stat, chi2_p = chisquare(observed, expected)
+
+    chi2_result = {
+        "test":          "Chi-Square Goodness of Fit Test",
+        "h0":            "Accidents are uniformly distributed across all 4 regions",
+        "h1":            "Accidents are NOT uniformly distributed - some regions have more",
+        "observed":      {k: int(v) for k, v in region_totals.items()},
+        "expected_each": round(expected_val, 2),
+        "statistic":     round(float(chi2_stat), 4),
+        "p_value":       round(float(chi2_p), 6) if chi2_p > 0.000001 else 0.0,
+        "alpha":         0.05,
+        "reject_h0":     bool(chi2_p < 0.05),
+        "result":        "Reject H0 - Accidents are NOT uniformly distributed" if chi2_p < 0.05 else "Fail to Reject H0 - Uniform distribution",
+        "conclusion":    f"Chi2 = {chi2_stat:.4f}, p = {chi2_p:.6f}. South India has the highest accidents ({int(region_totals['South']):,}). The distribution across regions is {'significantly unequal' if chi2_p < 0.05 else 'not significantly different from uniform'}.",
+    }
+
+    return {
+        "shapiro":  shapiro_result,
+        "ttest":    ttest_result,
+        "ztest":    ztest_result,
+        "chi2":     chi2_result,
+    }
+
 # ----- MAIN FUNCTION -----
 
 def run_pipeline(data_path):
@@ -468,6 +653,7 @@ def run_pipeline(data_path):
         "top_districts": chart_top_districts(df.copy()),
         "pie_2015":      chart_2015_pie(df.copy()),
         "heatmap":       chart_heatmap(df.copy()),
+        "outlier_boxplot": chart_outlier_boxplot(df.copy()),
     }
 
     year_cols = [c for c in df.columns if c.isdigit()]
@@ -525,6 +711,8 @@ def run_pipeline(data_path):
             "pct":       round(int(row["accidents_2015"]) / max_val * 100, 1)
         })
 
+    stat_tests = run_statistical_tests(df.copy(), years, accidents)
+
     return {
         "charts":        charts,
         "kpis":          kpis,
@@ -536,4 +724,5 @@ def run_pipeline(data_path):
         "accidents":     accidents.tolist(),
         "future_years":  future_years.tolist(),
         "future_preds":  {k: v.tolist() for k, v in future_preds.items()},
+        "stat_tests":    stat_tests,
     }
