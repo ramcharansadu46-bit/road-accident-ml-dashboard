@@ -28,7 +28,11 @@ pip install flask scikit-learn numpy pandas matplotlib seaborn
 
 ## 🚀 Run the Dashboard
 
- https://road-accident-ml-dashboard-1.onrender.com
+```bash
+python app.py
+```
+
+Then open your browser at:  **http://127.0.0.1:5000**
 
 ---
 
